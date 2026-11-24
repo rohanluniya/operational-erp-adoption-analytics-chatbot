@@ -1,0 +1,33 @@
+{
+  "database": "core_pulse",
+  "reader_login": "pulse_reader",
+  "etl_run_1": {
+    "pipeline_run_id": 1001,
+    "status": "SUCCESS",
+    "incremental_app_logs": 27985,
+    "watermark_id": 127985,
+    "certified_rows": 1216,
+    "events": 37116,
+    "backend": "mssql",
+    "source_tables_seeded": 21
+  },
+  "etl_run_2_idempotency": {
+    "pipeline_run_id": 1002,
+    "status": "SUCCESS",
+    "incremental_app_logs": 0,
+    "watermark_id": 127985,
+    "certified_rows": 1216,
+    "events": 37116
+  },
+  "rls_verification": {
+    "global_program_lead_rows": 1216,
+    "amer_ops_vp_rows": 532,
+    "amer_ops_vp_regions": [
+      "AMER"
+    ],
+    "emea_rollout_director_rows": 342,
+    "emea_rollout_director_regions": [
+      "EMEA"
+    ]
+  }
+}

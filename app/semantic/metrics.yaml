@@ -1,0 +1,136 @@
+owner: "Rohan Luniya"
+certified_view: "goldview.v_core_adoption"
+product_name: "CORE Pulse"
+operational_app: "CORE"
+
+metrics:
+  contracts_created:
+    kpi_name: "Contracts Created"
+    unit: "contracts"
+    plain_definition: "Distinct CORE projects/contracts created, bucketed strictly by Project.CreatedDate (never start or proposed start dates)."
+    counting_rule: "COUNT(DISTINCT ProjectId)"
+    event_timestamp: "Project.CreatedDate"
+    event_type: "PROJECT_CREATED"
+    exclusions: "None; both open and closed projects are included by creation timestamp."
+    additivity: "ADDITIVE"
+    distinct_count_behavior: "Additive across disjoint projects, business units, entities, waves, and calendar months."
+    default_current_label: "Contracts Created · All-time (cumulative)"
+    default_window: "CURRENT_MONTH_MTD"
+    supported_levels: ["OVERALL", "WAVE", "ENTITY", "BUSINESS_UNIT"]
+    unsupported_levels: {}
+    synonyms:
+      - "contracts"
+      - "projects"
+      - "projects created"
+      - "new contracts"
+      - "new projects"
+      - "contract creation"
+      - "project creation"
+    lineage:
+      source_tables: ["source_sim.project", "source_sim.business_unit"]
+      bronze_tables: ["bronze.core_project", "bronze.core_business_unit"]
+      silver_tables: ["silver.project", "silver.organization"]
+      gold_objects: ["gold.coreadoption_event (PROJECT_CREATED)", "gold.coreadoption_kpi_daily"]
+      certified_object: "goldview.v_core_adoption"
+
+  employees_logging_in:
+    kpi_name: "Employees Logging In"
+    unit: "unique employees"
+    plain_definition: "Unique non-service CORE application users with at least one Application Login event in the requested period and scope."
+    counting_rule: "COUNT(DISTINCT APPUserId) WHERE ApplicationLogType.Name = 'Application Login' AND APPUser.IsServiceAccount = 0"
+    event_timestamp: "ApplicationLog.CreatedDate"
+    event_type: "LOGIN"
+    exclusions: "Excludes service accounts (IsServiceAccount = 1), non-login events (Session Timeout, Token Refresh, Failed Login), and unconfirmed/sandbox apps."
+    additivity: "NON_ADDITIVE"
+    distinct_count_behavior: "Strictly non-additive across days, months, applications, adoption entities, and rollout waves. Must be recomputed distinctly at each requested reporting grain—never sum child rows."
+    default_current_label: "Employees Logging In · This month (MTD)"
+    default_window: "CURRENT_MONTH_MTD"
+    identity_caveat: "APPUserId is the technical unique user key; business label 'employee' awaits future HRIS worker-identity linkage."
+    supported_levels: ["OVERALL", "WAVE", "ENTITY"]
+    unsupported_levels:
+      BUSINESS_UNIT: "Unavailable by Business Unit — ApplicationLog and APPUser do not carry authoritative employee home-BU attribution, and CORE Pulse never fabricates BU assignments."
+    synonyms:
+      - "employees logging in"
+      - "unique employees"
+      - "active users"
+      - "users logging in"
+      - "logins"
+      - "login users"
+      - "users using core"
+      - "who logged in"
+      - "distinct users"
+      - "mau"
+    lineage:
+      source_tables: ["source_sim.application_log", "source_sim.application_log_type", "source_sim.app_user", "source_sim.application"]
+      bronze_tables: ["bronze.core_application_log", "bronze.core_application_log_type", "bronze.core_app_user", "bronze.core_application"]
+      silver_tables: ["silver.login_activity", "silver.application_mapping"]
+      gold_objects: ["gold.coreadoption_user_activity", "gold.coreadoption_event (LOGIN)"]
+      certified_object: "goldview.v_core_adoption"
+
+  timesheets_submitted:
+    kpi_name: "Timesheets Submitted"
+    unit: "timecards"
+    plain_definition: "Distinct formal CORE timecards with a populated SubmittedDate, regardless of whether workflow status later changed to Approved, Rejected, or Exported."
+    counting_rule: "COUNT(DISTINCT TimecardId) WHERE Timecard.SubmittedDate IS NOT NULL"
+    event_timestamp: "Timecard.SubmittedDate"
+    event_type: "TIMECARD_SUBMITTED"
+    exclusions: "Excludes unsubmitted draft timecards (SubmittedDate IS NULL). Never uses ProjectTask.ActualHours or ProjectTaskTimelineEvent as proxies."
+    additivity: "ADDITIVE_BY_TIMECARD"
+    distinct_count_behavior: "Additive across distinct TimecardIds and submission months; entity/wave attribution includes only single-entity timecards to prevent multi-BU duplication."
+    default_current_label: "Timesheets Submitted · All-time (cumulative)"
+    default_window: "LAST_12_MONTHS"
+    supported_levels: ["OVERALL", "WAVE", "ENTITY"]
+    unsupported_levels:
+      BUSINESS_UNIT: "Unavailable by Business Unit — a single timecard can book rows across multiple project tasks and Business Units, and no governed BU allocation rule exists yet."
+    synonyms:
+      - "timesheets"
+      - "timecards"
+      - "timesheet submissions"
+      - "timecard submissions"
+      - "submitted timecards"
+      - "submitted timesheets"
+    lineage:
+      source_tables: ["source_sim.timecard", "source_sim.timecard_status", "source_sim.timecard_row"]
+      bronze_tables: ["bronze.core_timecard", "bronze.core_timecard_status", "bronze.core_timecard_row"]
+      silver_tables: ["silver.timecard", "silver.timecard_row"]
+      gold_objects: ["gold.coreadoption_event (TIMECARD_SUBMITTED)", "gold.coreadoption_kpi_daily"]
+      certified_object: "goldview.v_core_adoption"
+
+  expense_reports:
+    kpi_name: "Expense Reports"
+    unit: "expense reports"
+    plain_definition: "Distinct CORE expense reports with a populated SubmittedDate, bucketed by initial submission timestamp regardless of post-submission edits."
+    counting_rule: "COUNT(DISTINCT ExpenseReportId) WHERE ExpenseReport.SubmittedDate IS NOT NULL"
+    event_timestamp: "ExpenseReport.SubmittedDate"
+    event_type: "EXPENSE_SUBMISSION"
+    exclusions: "Excludes unsubmitted draft expense reports (SubmittedDate IS NULL)."
+    additivity: "ADDITIVE"
+    distinct_count_behavior: "Additive across distinct ExpenseReportIds, Business Units, entities, waves, and calendar months."
+    default_current_label: "Expense Reports · All-time (cumulative)"
+    default_window: "LAST_12_MONTHS"
+    supported_levels: ["OVERALL", "WAVE", "ENTITY", "BUSINESS_UNIT"]
+    unsupported_levels: {}
+    synonyms:
+      - "expenses"
+      - "expense reports"
+      - "submitted expenses"
+      - "expense submissions"
+      - "expense claims"
+    lineage:
+      source_tables: ["source_sim.expense_report", "source_sim.business_unit"]
+      bronze_tables: ["bronze.core_expense_report", "bronze.core_business_unit"]
+      silver_tables: ["silver.expense_report", "silver.organization"]
+      gold_objects: ["gold.coreadoption_event (EXPENSE_SUBMISSION)", "gold.coreadoption_kpi_daily"]
+      certified_object: "goldview.v_core_adoption"
+
+out_of_scope_topics:
+  - pattern: "turnaround|cycle time"
+    reason: "Project turnaround and cycle-time analytics belong to the future Contracts & Project Delivery module (Release 2) and are not part of the CORE Adoption pilot."
+  - pattern: "specimen|sample throughput|lims"
+    reason: "Laboratory specimen throughput is not instrumented in Release 1 (`LAB_TESTING` is marked `NOT_INSTRUMENTED` in the module catalog)."
+  - pattern: "invoice aging|receivable|revenue|profit|margin|ebit"
+    reason: "Financial P&L, invoicing, and aging metrics are outside CORE Pulse Adoption scope (`INVOICING` is `NOT_INSTRUMENTED`)."
+  - pattern: "inspector productivity|utilization|scheduling optimization"
+    reason: "Inspector scheduling optimization and task productivity require future Release 2/4 operational contracts (`INSPECTOR_SCHED` is `NOT_INSTRUMENTED`)."
+  - pattern: "qualification effectiveness|expired cert"
+    reason: "Technician qualification effectiveness is planned for a future release (`QUALIFICATIONS` is `NOT_INSTRUMENTED`)."

@@ -1,0 +1,4 @@
+{"step": "01_signin", "ok": true}
+{"step": "llm_1_overall", "mode": "llm", "seconds": 17.41, "ok": true}
+{"step": "llm_2_expenses_gap", "mode": "llm", "seconds": 15.35, "ok": true}
+{"step": "llm_3_dataops", "mode": "llm", "seconds": 12.88, "ok": true}

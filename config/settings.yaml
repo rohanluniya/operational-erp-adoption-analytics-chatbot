@@ -1,0 +1,28 @@
+app_name: "CORE Pulse"
+app_full_name: ""
+tagline: ""
+company_short: "Global Operations"
+company_long: "Global Operations"
+operational_platform: "CORE"
+author: "Rohan Luniya"
+author_line: "Developed and maintained by Rohan Luniya"
+version: "1.0.0"
+
+as_of_date: "2026-11-17"
+seed: 42
+history_months: 18
+first_month: "2025-06-01"
+
+personas:
+  Global CORE Program Lead:
+    user_id: "global_program_lead"
+    role: "Global Program & BI Lead"
+    scope_label: "All Regions & Waves"
+  Americas Operations VP:
+    user_id: "amer_ops_vp"
+    role: "Regional Operations VP — Americas"
+    scope_label: "Americas (AMER · Waves 1 & 4)"
+  EMEA Rollout Director:
+    user_id: "emea_rollout_director"
+    role: "Regional Rollout Director — EMEA"
+    scope_label: "Europe, Middle East & Africa (EMEA · Wave 2)"

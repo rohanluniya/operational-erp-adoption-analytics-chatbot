@@ -1,0 +1,9 @@
+{"step": "01_signin", "ok": true}
+{"step": "02_home_kpis", "ok": true}
+{"step": "03_turn1_mtd_logins", "seconds": 3.22, "ok": true}
+{"step": "04_turn2_6m_trend", "seconds": 3.25, "ok": true}
+{"step": "05_turn3_wave_nonadditive", "seconds": 3.26, "ok": true}
+{"step": "06_unsupported_bu_and_rls", "seconds": 6.43, "ok": true}
+{"step": "07_rollout_explorer", "ok": true}
+{"step": "08_data_catalog_lineage", "ok": true}
+{"step": "09_user_guide", "ok": true}

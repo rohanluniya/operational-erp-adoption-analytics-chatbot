@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CORE Pulse — Executive Architecture &amp; Live Demo Deck</title>
+<style>
+  :root {
+    --navy: #0B1F3A; --teal: #0F766E; --teal-light: #E6F4F1;
+    --indigo: #3730A3; --indigo-light: #EEF0FB;
+    --slate: #475569; --border: #E2E8F0; --bg: #F8FAFC; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: #071324; color: var(--navy);
+  }
+  .deck-shell { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .slide-viewport {
+    position: relative; width: min(96vw, calc((100vh - 64px) * 16 / 9)); aspect-ratio: 16 / 9;
+    background: var(--bg); border-radius: 16px; box-shadow: 0 28px 80px rgba(0,0,0,0.55); overflow: hidden;
+  }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; padding: 34px 46px 26px; background: var(--bg); }
+  .slide.active { display: flex; }
+  .slide.hero { background: linear-gradient(135deg, #081A33 0%, #0F766E 58%, #3730A3 100%); color: #FFF; }
+  .s-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+  .kicker { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--teal); margin-bottom: 3px; }
+  .s-title { font-size: clamp(1.3rem, 2.0vw, 1.88rem); font-weight: 800; color: var(--navy); line-height: 1.18; }
+  .s-badge { background: var(--indigo-light); color: var(--indigo); font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 999px; white-space: nowrap; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; flex: 1; min-height: 0; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; flex: 1; min-height: 0; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; min-height: 0; }
+  .grid-video { display: grid; grid-template-columns: 1.52fr 1fr; gap: 20px; flex: 1; min-height: 0; align-items: stretch; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px 17px; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+  .card.teal { border-top: 4px solid var(--teal); }
+  .card.indigo { border-top: 4px solid var(--indigo); }
+  .card.red { border-top: 4px solid #DC2626; background: #FFFDFD; }
+  .card h3 { font-size: 1.0rem; font-weight: 700; color: var(--navy); }
+  .card p, .card li { font-size: 0.84rem; line-height: 1.44; color: var(--slate); }
+  .card ul { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .card li strong { color: var(--navy); }
+  code { background: #EEF2FF; color: #3730A3; padding: 1px 6px; border-radius: 5px; font-family: ui-monospace, Menlo, monospace; font-size: 0.88em; font-weight: 600; }
+  .callout { background: linear-gradient(90deg, var(--teal-light) 0%, var(--indigo-light) 100%); border-left: 5px solid var(--teal); border-radius: 10px; padding: 10px 15px; font-size: 0.86rem; color: var(--navy); font-weight: 600; margin-top: 12px; }
+  .vid-col { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+  .vid-frame { background: #0B1628; border-radius: 12px; overflow: hidden; border: 2px solid #CBD5E1; }
+  .vid-bar { background: #0F172A; color: #E2E8F0; font-size: 0.74rem; font-weight: 600; padding: 5px 12px; display: flex; justify-content: space-between; }
+  .vid-frame video { width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: #0F172A; display: block; }
+  .thumb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .thumb-row img { width: 100%; height: 76px; object-fit: cover; object-position: top; border-radius: 8px; border: 1px solid var(--border); }
+  .nav-bar { display: flex; align-items: center; gap: 14px; margin-top: 10px; color: #CBD5E1; font-size: 0.84rem; }
+  .nav-bar button { background: #1E293B; color: #FFF; border: 1px solid #334155; border-radius: 8px; padding: 6px 14px; cursor: pointer; font-weight: 600; }
+  .nav-bar button:hover { background: var(--teal); border-color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="deck-shell">
+  <div class="slide-viewport">
+
+    <!-- Slide 1 -->
+    <section class="slide hero active">
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 26px; flex:1; align-items:center;">
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <span style="background:rgba(255,255,255,0.16); width:fit-content; padding:5px 12px; border-radius:999px; font-size:0.76rem; font-weight:700; letter-spacing:0.08em;">FROM AI-READY DATA ENGINEERING TO CONVERSATIONAL BI</span>
+          <h1 style="font-size:clamp(1.9rem, 3.0vw, 2.75rem); font-weight:800; line-height:1.12;">CORE Pulse: Turning Clean Data Into Instant Rollout Intelligence</h1>
+          <p style="font-size:0.98rem; line-height:1.5; color:#E2E8F0;">Showing how a clean, structured Medallion data foundation (<code>Bronze</code> &rarr; <code>Silver</code> &rarr; <code>Gold</code> &rarr; <code>Certified View</code>) makes it fast and effortless to launch an intuitive conversational assistant—so leaders can ask plain-English rollout questions and get trusted answers, charts, and Excel exports in seconds.</p>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:4px;">
+            <div style="background:rgba(15,23,42,0.55); border:1px solid #5EEAD4; border-radius:10px; padding:12px;">
+              <div style="font-size:1.22rem; font-weight:800; color:#5EEAD4;">90% Data Foundation</div>
+              <div style="font-size:0.78rem; color:#E2E8F0; margin-top:4px;">Clean Bronze &rarr; Silver &rarr; Gold tables do the heavy lifting</div>
+            </div>
+            <div style="background:rgba(15,23,42,0.55); border:1px solid #5EEAD4; border-radius:10px; padding:12px;">
+              <div style="font-size:1.22rem; font-weight:800; color:#5EEAD4;">8&ndash;10s Answers</div>
+              <div style="font-size:0.78rem; color:#E2E8F0; margin-top:4px;">Plain-English questions return insights, tables &amp; charts</div>
+            </div>
+            <div style="background:rgba(15,23,42,0.55); border:1px solid #5EEAD4; border-radius:10px; padding:12px;">
+              <div style="font-size:1.22rem; font-weight:800; color:#5EEAD4;">Free Open-Source AI</div>
+              <div style="font-size:0.78rem; color:#E2E8F0; margin-top:4px;">Lightweight local open-source models at $0 API cost</div>
+            </div>
+          </div>
+          <div style="background:rgba(245,158,11,0.18); border:1px solid #FBBF24; border-radius:8px; padding:8px 12px; font-size:0.82rem; color:#FEF3C7;">
+            <b>Synthetic data &ndash; prototype for demonstration only.</b> Fictional company, people and figures.
+          </div>
+        </div>
+        <div class="card teal" style="color:var(--navy); gap:10px;">
+          <h3 style="color:var(--teal); text-transform:uppercase; font-size:0.82rem; letter-spacing:0.08em;">The Analytics &amp; AI Iceberg</h3>
+          <div style="background:var(--indigo-light); border:1px solid var(--indigo); border-radius:8px; padding:10px;">
+            <div style="font-size:0.72rem; font-weight:800; color:var(--indigo);">VISIBLE SURFACE (10%) &mdash; EASY CONVERSATIONAL UX</div>
+            <div style="font-size:0.84rem; font-weight:700; margin-top:4px;">CORE Pulse Chat &middot; Rollout Explorer &middot; Power BI / Tableau / Excel</div>
+          </div>
+          <div style="text-align:center; font-size:0.72rem; font-weight:800; color:var(--teal);">&mdash;&mdash; STRUCTURED DATA ENGINEERING (90%) &mdash;&mdash;</div>
+          <div style="background:#E6F4F1; border-left:4px solid #0F766E; padding:8px 10px; border-radius:6px; font-size:0.80rem;"><b>Certified Semantic Layer:</b> <code>goldview.v_core_adoption</code> &middot; Governed KPIs &middot; Access Control</div>
+          <div style="background:#FEF9C3; border-left:4px solid #B45309; padding:8px 10px; border-radius:6px; font-size:0.80rem;"><b>Gold Layer:</b> <code>37,116</code> clean events &middot; Daily User Activity &middot; <code>1,216</code> certified rollups</div>
+          <div style="background:#F1F5F9; border-left:4px solid #334155; padding:8px 10px; border-radius:6px; font-size:0.80rem;"><b>Silver Layer:</b> Standardized Org &amp; Wave Hierarchy &middot; Service Accounts Excluded</div>
+          <div style="background:#FEF3C7; border-left:4px solid #92400E; padding:8px 10px; border-radius:6px; font-size:0.80rem;"><b>Bronze &amp; DataOps:</b> 16 CORE Operational Tables &middot; Incremental Load Watermarks</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 2 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Executive Context</div><div class="s-title">Why Rollout Reporting Breaks Without Clean Data Engineering</div></div><span class="s-badge">Problem &rarr; Solution</span></div>
+      <div class="grid-2">
+        <div class="card red"><h3>1. Double-Counting Active Users</h3><p>Adding Wave 1 + Wave 2 logins inflates headcount whenever specialists work across multiple regional portals. Our Gold layer deduplicates unique employees automatically at every level.</p></div>
+        <div class="card red"><h3>2. Shifting Historical Dates</h3><p>Grouping contracts by start date or expenses by last-modified date rewrites past months when records are edited. CORE Pulse locks strictly to original creation and submission dates.</p></div>
+        <div class="card indigo"><h3>3. &ldquo;Live&rdquo; on Paper vs. Real Usage</h3><p>A tracker marking Expenses <code>LIVE</code> in a country does not prove field teams submit claims. CORE Pulse compares go-live status directly against actual recorded Gold transactions.</p></div>
+        <div class="card teal"><h3>4. Mid-Month False Alarms</h3><p>Comparing 17 days of November against a full 31-day October manufactures fake adoption drops. CORE Pulse benchmarks month-to-date fairly against the same 17 days of October.</p></div>
+      </div>
+      <div class="callout">Core Takeaway: Solve business rules once in the Medallion data pipeline &mdash; then every dashboard and AI chat stays 100% aligned.</div>
+    </section>
+
+    <!-- Slide 3 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Data Engineering Foundation</div><div class="s-title">How the Data Was Structured: 5-Stage Medallion Pipeline</div></div><span class="s-badge">Medallion ETL</span></div>
+      <div class="grid-5">
+        <div class="card"><h3>1. Source</h3><ul><li>16 CORE tables</li><li>Business Units &amp; Projects</li><li>Application Login Logs</li><li>Timecards &amp; Expenses</li></ul></div>
+        <div class="card teal"><h3>2. Bronze</h3><ul><li>16 <code>bronze.core_*</code> tables</li><li>Explicit column mapping</li><li>Extract timestamps</li><li>Incremental watermark</li></ul></div>
+        <div class="card indigo"><h3>3. Silver</h3><ul><li>10 conformed tables</li><li>Unified org &amp; wave hierarchy</li><li>Service accounts removed</li><li>Orphan rows quarantined</li></ul></div>
+        <div class="card teal"><h3>4. Gold</h3><ul><li><code>37,116</code> clean events</li><li>Daily unique user activity</li><li>Daily KPI snapshots</li><li>Pre-validated parity</li></ul></div>
+        <div class="card indigo"><h3>5. Certified View</h3><ul><li><code>goldview.v_core_adoption</code></li><li>Current &amp; Monthly views</li><li>Wave, Entity &amp; BU grains</li><li>Role-based security</li></ul></div>
+      </div>
+      <div class="callout">Repeatable Engineering: Automated watermarks and data-quality checks ensure every refresh is clean, auditable, and free of duplicates.</div>
+    </section>
+
+    <!-- Slide 4 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Governed Business Rules</div><div class="s-title">Four Certified Adoption KPIs &amp; Clear Reporting Boundaries</div></div><span class="s-badge">Certified KPIs</span></div>
+      <div class="grid-2">
+        <div class="card teal"><h3>Contracts Created &middot; 2,303</h3><p>Distinct projects created, anchored strictly to creation date. Available Overall, by Rollout Wave, by Adoption Entity, and by Business Unit.</p></div>
+        <div class="card indigo"><h3>Employees Logging In &middot; 419</h3><p>Unique non-service employees signing in. <b>Automatically deduplicated at every grain.</b> Blocked at Business Unit until HR home-BU data is connected.</p></div>
+        <div class="card teal"><h3>Timesheets Submitted &middot; 5,373</h3><p>Formal submitted timecards (including approved/exported; excluding drafts). Blocked at Business Unit because a single timecard can span multiple BUs.</p></div>
+        <div class="card indigo"><h3>Expense Reports &middot; 1,859</h3><p>Submitted expense claims anchored to initial submission date. Available Overall, by Rollout Wave, by Adoption Entity, and by Business Unit.</p></div>
+      </div>
+      <div class="callout">Built-In Honesty: Where a Business Unit breakdown isn't supported by source data yet, CORE Pulse explains why instead of guessing.</div>
+    </section>
+
+    <!-- Slide 5 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Live Walkthrough &middot; Chapter 1</div><div class="s-title">Sign-In, Personal Workspace &amp; Clear Executive KPI Summary</div></div><span class="s-badge">1080p Demo 01</span></div>
+      <div class="grid-video">
+        <div class="vid-col">
+          <div class="vid-frame"><div class="vid-bar"><span>&#9654; 01_signin_and_executive_kpi_strip.mp4</span><span>1080p H.264</span></div><video controls preload="metadata" poster="screenshots/02_executive_kpi_strip.png" src="videos/01_signin_and_executive_kpi_strip.mp4"></video></div>
+          <div class="thumb-row"><img src="screenshots/01_signin_gate.png" alt="Sign in" /><img src="screenshots/03_overall_adoption_snapshot.png" alt="Overall snapshot" /></div>
+        </div>
+        <div class="card teal"><h3>Simple, Intuitive Start</h3><ul>
+          <li><strong>Personal Conversation History:</strong> Sign-in keeps each leader's last 10 threads, pinned reviews, and filters separate.</li>
+          <li><strong>Crystal-Clear Time Labels:</strong> KPI cards separate All-Time Cumulative, Last Closed Month (Oct), and Current MTD (Nov 1&ndash;17).</li>
+          <li><strong>Fair Mid-Month Context:</strong> Shows Nov 1&ndash;17 right alongside Oct 1&ndash;17 equivalent days.</li>
+          <li><strong>Guided Starter Prompts:</strong> One-click buttons let any leader explore adoption with zero training.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- Slide 6 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Live Walkthrough &middot; Chapter 2</div><div class="s-title">Natural Follow-Up Questions &amp; Automatic User Deduplication</div></div><span class="s-badge">1080p Demo 02</span></div>
+      <div class="grid-video">
+        <div class="vid-col">
+          <div class="vid-frame"><div class="vid-bar"><span>&#9654; 02_multiturn_adoption_and_nonadditivity.mp4</span><span>1080p H.264</span></div><video controls preload="metadata" poster="screenshots/06_wave_nonadditivity_and_sql.png" src="videos/02_multiturn_adoption_and_nonadditivity.mp4"></video></div>
+          <div class="thumb-row"><img src="screenshots/05_six_month_trend_partial_flag.png" alt="6M trend" /><img src="screenshots/06_wave_nonadditivity_and_sql.png" alt="Wave non-additivity" /></div>
+        </div>
+        <div class="card indigo"><h3>Conversational Flow</h3><ul>
+          <li><strong>Remembers Context:</strong> Ask <code>How many employees logged in this month?</code> then simply say <code>Show the six-month trend.</code></li>
+          <li><strong>Partial-Month Visual Cue:</strong> In-progress November plots as an amber dotted diamond so no one misreads it as a drop.</li>
+          <li><strong>Smart Wave Breakdown:</strong> Shows Wave 1&ndash;4 active users alongside the true deduplicated global total (<code>419</code>).</li>
+          <li><strong>One-Click Proof &amp; Export:</strong> Download CSV/Excel or expand <code>How I got this</code> for lineage and SQL.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- Slide 7 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Live Walkthrough &middot; Chapter 3</div><div class="s-title">Tracking Rollout Go-Live vs. Actual Field Usage</div></div><span class="s-badge">1080p Demo 03</span></div>
+      <div class="grid-video">
+        <div class="vid-col">
+          <div class="vid-frame"><div class="vid-bar"><span>&#9654; 03_rollout_vs_observed_activity_gap.mp4</span><span>1080p H.264</span></div><video controls preload="metadata" poster="screenshots/09_rollout_zero_activity_gap.png" src="videos/03_rollout_vs_observed_activity_gap.mp4"></video></div>
+          <div class="thumb-row"><img src="screenshots/08_rollout_explorer_full.png" alt="Rollout Explorer" /><img src="screenshots/09_rollout_zero_activity_gap.png" alt="Zero activity gap" /></div>
+        </div>
+        <div class="card teal"><h3>Actionable Rollout Tracking</h3><ul>
+          <li><strong>Business Language Mapping:</strong> Asking about the <code>Western region</code> maps automatically to Americas (<code>AMER</code>).</li>
+          <li><strong>Go-Live vs. Real Activity:</strong> Compares rollout tracker status directly against recorded Gold transactions.</li>
+          <li><strong>Clear Module Scope:</strong> Distinguishes instrumented Release 1 modules from status-only future modules.</li>
+          <li><strong>Instant Gap Detection:</strong> Spotlights Latin America Expenses &mdash; marked <code>LIVE</code> since October with <b>zero submissions</b>.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- Slide 8 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Live Walkthrough &middot; Chapter 4</div><div class="s-title">Role-Based Data Security &amp; Clear Governance Guardrails</div></div><span class="s-badge">1080p Demo 04</span></div>
+      <div class="grid-video">
+        <div class="vid-col">
+          <div class="vid-frame"><div class="vid-bar"><span>&#9654; 04_persona_rls_and_governance_guardrails.mp4</span><span>1080p H.264</span></div><video controls preload="metadata" poster="screenshots/11_persona_rls_refusal.png" src="videos/04_persona_rls_and_governance_guardrails.mp4"></video></div>
+          <div class="thumb-row"><img src="screenshots/10_unsupported_bu_governance.png" alt="Unsupported BU" /><img src="screenshots/12_prompt_injection_blocked.png" alt="Injection blocked" /></div>
+        </div>
+        <div class="card indigo"><h3>Enterprise Access Control</h3><ul>
+          <li><strong>Honest Data Boundaries:</strong> Explains clearly why Logins and Timecards aren't split by Business Unit.</li>
+          <li><strong>Role-Based Security (RLS):</strong> Switching to <code>EMEA Rollout Director</code> scopes filters and database queries strictly to EMEA.</li>
+          <li><strong>Polite Scope Refusals:</strong> Out-of-scope Americas queries under the EMEA role are cleanly declined.</li>
+          <li><strong>Safe Read-Only Design:</strong> Blocks any attempt to run raw database commands or view individual employee rows.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- Slide 9 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Live Walkthrough &middot; Chapter 5</div><div class="s-title">Self-Service Data Catalog, Lineage &amp; Pipeline Health</div></div><span class="s-badge">1080p Demo 05</span></div>
+      <div class="grid-video">
+        <div class="vid-col">
+          <div class="vid-frame"><div class="vid-bar"><span>&#9654; 05_medallion_catalog_and_dataops_lineage.mp4</span><span>1080p H.264</span></div><video controls preload="metadata" poster="screenshots/15_dataops_watermark_and_parity.png" src="videos/05_medallion_catalog_and_dataops_lineage.mp4"></video></div>
+          <div class="thumb-row"><img src="screenshots/14_catalog_medallion_lineage.png" alt="Lineage" /><img src="screenshots/15_dataops_watermark_and_parity.png" alt="DataOps" /></div>
+        </div>
+        <div class="card teal"><h3>Complete Transparency</h3><ul>
+          <li><strong>Plain-English KPI Dictionary:</strong> Business and BI teams read the exact same metric rules inside the app.</li>
+          <li><strong>Source-to-Answer Lineage:</strong> Traces every KPI from operational tables through Bronze, Silver, and Gold to the answer.</li>
+          <li><strong>Live Pipeline Health:</strong> Displays refresh timestamps, incremental load watermarks, and quality checks.</li>
+          <li><strong>Exception Visibility:</strong> Surfaces quarantined test apps and orphan records openly without skewing KPIs.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- Slide 10 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">How It Works</div><div class="s-title">Why Clean Medallion Data Makes Conversational AI Simple &amp; Low-Cost</div></div><span class="s-badge">Data + Lightweight AI</span></div>
+      <div class="grid-2">
+        <div class="card teal"><h3>1. Structured Data Does 90% of the Work</h3><ul>
+          <li><strong>Pre-Built Business Queries:</strong> Governed read-only query templates cover snapshots, trends, waves, entities, BUs, rollout gaps, and lineage.</li>
+          <li><strong>Zero AI Math or Guessing:</strong> The database computes every count; AI simply matches the user's question and summarizes verified facts.</li>
+          <li><strong>Shared Across Every Tool:</strong> The exact same <code>goldview.v_core_adoption</code> layer powers CORE Pulse, Power BI, Tableau, and Excel.</li>
+          <li><strong>Dual-Database Ready:</strong> Runs identically on enterprise SQL Server 2022 (with native Row-Level Security) or portable local DuckDB.</li>
+        </ul></div>
+        <div class="card indigo"><h3>2. Free, Lightweight Open-Source AI Layer</h3><ul>
+          <li><strong>Compact Open-Source Models:</strong> Uses free, small open-source models (Apache 2.0) because heavy reasoning isn't needed when data is clean.</li>
+          <li><strong>$0 Per-Query API Cost:</strong> No per-user or per-token cloud AI bills &mdash; hosted privately inside our own environment.</li>
+          <li><strong>100% Data Privacy:</strong> No company schemas, operational records, or business questions ever leave our infrastructure.</li>
+          <li><strong>Instant Rule-Based Mode:</strong> Also includes a built-in instant mode (&lt; 1 second) that works even without an AI model.</li>
+        </ul></div>
+      </div>
+      <div class="callout">The Pattern: Invest once in structured Medallion data &rarr; add a thin conversational layer on top in days, not months.</div>
+    </section>
+
+    <!-- Slide 11 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Business Experience &amp; Trust</div><div class="s-title">Fast Answers, Built-In Data Accuracy &amp; Repeatable Delivery</div></div><span class="s-badge">8&ndash;10s Response</span></div>
+      <div class="grid-2">
+        <div class="card teal"><h3>What Leaders Can Rely On Every Time</h3><ul>
+          <li><strong>No Double-Counted Users:</strong> Employees active across multiple waves or portals are always deduplicated accurately.</li>
+          <li><strong>Immutable History:</strong> Contracts and expense claims stay locked to creation/submission dates &mdash; edits never shift prior months.</li>
+          <li><strong>Workflow-Aware Counts:</strong> Approved and exported timecards stay counted, while drafts and service accounts are excluded.</li>
+          <li><strong>Complete Org Coverage:</strong> New Business Units appear automatically even before optional local mappings are added.</li>
+          <li><strong>Verified Number Check:</strong> Every figure in the written summary is cross-checked against the table before display.</li>
+        </ul></div>
+        <div class="card indigo"><h3>Everyday Speed &amp; Simplicity</h3><ul>
+          <li><strong>~8&ndash;10 Seconds per Question:</strong> Typical response time on lightweight open-source AI &mdash; returning narrative, table, and chart together.</li>
+          <li><strong>Under 1 Second in Instant Mode:</strong> Built-in rule-based mode answers standard adoption questions instantaneously.</li>
+          <li><strong>Zero SQL or Training Needed:</strong> Leaders use sidebar filters, click follow-up prompts, or say <code>that's not right</code> to adjust scope.</li>
+          <li><strong>Ready-to-Share Outputs:</strong> One-click CSV and Excel downloads plus a visual User Guide built right into the app.</li>
+          <li><strong>Reusable Blueprint:</strong> Alongside IRIS for Finance, CORE Pulse proves any clean Medallion dataset can become conversational fast.</li>
+        </ul></div>
+      </div>
+      <div class="callout">Proven Across Two Domains: Finance (IRIS) + Operations Rollout (CORE Pulse) running on the exact same architecture.</div>
+    </section>
+
+    <!-- Slide 12 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Next Steps &amp; Scale</div><div class="s-title">Connecting Live CORE Data &amp; Plugging In Future Domains</div></div><span class="s-badge">Roadmap</span></div>
+      <div class="grid-4">
+        <div class="card teal"><h3>Release 1 (Ready Now)</h3><p><b>CORE Rollout &amp; Adoption:</b> Contracts, Unique Logins, Timecards, Expenses, Rollout Explorer, Lineage &amp; Conversational BI.</p></div>
+        <div class="card indigo"><h3>Release 2 (Next)</h3><p><b>Project Delivery &amp; Backlog:</b> Project/Service/Phase/Task lifecycle, turnaround cycle times, and delivery backlog.</p></div>
+        <div class="card teal"><h3>Release 3 (Planned)</h3><p><b>Scheduling &amp; Qualifications:</b> Field inspector dispatch utilization, safety licences, and certification compliance.</p></div>
+        <div class="card indigo"><h3>Release 4 (Planned)</h3><p><b>Lab Throughput &amp; Billing:</b> Laboratory sample volume, certificate turnaround, and milestone invoicing.</p></div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <h3>3 Simple Steps to Connect Live Production Data (Zero UI Rewrite)</h3>
+        <p><b>1. Point Bronze to CORE Replica:</b> Swap synthetic source tables for read-only replicas of production CORE SQL Server &nbsp;|&nbsp; <b>2. Enable Single Sign-On:</b> Connect Microsoft Entra ID groups to existing role-based security rules &nbsp;|&nbsp; <b>3. Link HR Home-BU Feed:</b> Unlock Business Unit login breakdowns when HR master data is connected.</p>
+      </div>
+    </section>
+
+  </div>
+  <div class="nav-bar">
+    <button onclick="go(-1)">&larr; Prev</button>
+    <span id="counter">Slide 1 / 12</span>
+    <button onclick="go(1)">Next &rarr;</button>
+  </div>
+</div>
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let idx = 0;
+  function show(n) {
+    slides.forEach(s => { s.classList.remove('active'); s.querySelectorAll('video').forEach(v => v.pause()); });
+    idx = (n + slides.length) % slides.length;
+    slides[idx].classList.add('active');
+    document.getElementById('counter').textContent = 'Slide ' + (idx + 1) + ' / ' + slides.length;
+  }
+  function go(d) { show(idx + d); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') go(1);
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(-1);
+  });
+</script>
+</body>
+</html>
